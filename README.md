@@ -63,6 +63,23 @@ You can deploy this app for **free** in seconds.
 -   **JavaScript** (ES6+, Fetch API, LocalStorage)
 -   **API**: [Aladhan Prayer Times](https://aladhan.com/prayer-times-api)
 
+## 🔄 How to Update
+
+If you make changes to the code in the future, just run these 3 commands in your terminal to update the live site:
+
+1.  **Save Changes**:
+    ```bash
+    git add .
+    ```
+2.  **Label the Update**:
+    ```bash
+    git commit -m "Describe your change here"
+    ```
+3.  **Publish**:
+    ```bash
+    git push
+    ```
+
 ---
 
 *Made with ❤️ for the Ummah.*
