@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sajjda - Daily Prayer Tracker</title>
+
+    <!-- iOS Support -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Sajjda">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2884/2884666.png">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Google Fonts: Outfit for a modern, clean look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="background-globes">
+        <div class="globe globe-1"></div>
+        <div class="globe globe-2"></div>
+    </div>
+
+    <main class="glass-container">
+        <header class="app-header">
+            <div class="header-top">
+                <div class="logo">
+                    <h1>Sajjda</h1>
+                    <span class="subtitle">Daily Prayer Tracker</span>
+                </div>
+                <button id="theme-toggle" class="theme-btn" aria-label="Toggle Theme">☀️</button>
+            </div>
+
+            <div class="header-info">
+                <span id="current-date" class="date-display">Getting date...</span>
+                <span id="status-display" class="status-display">Locating...</span>
+            </div>
+        </header>
+
+        <!-- NEW: Hero Section -->
+        <section class="hero-section">
+            <div class="progress-ring-container">
+                <svg class="progress-ring" width="120" height="120">
+                    <circle class="progress-ring__circle-bg" stroke="rgba(255,255,255,0.1)" stroke-width="8"
+                        fill="transparent" r="52" cx="60" cy="60" />
+                    <circle class="progress-ring__circle" stroke="var(--accent-secondary)" stroke-width="8"
+                        fill="transparent" r="52" cx="60" cy="60" />
+                </svg>
+                <div class="progress-text">
+                    <span id="completed-count">0</span>/5
+                </div>
+            </div>
+
+            <div class="next-prayer-info">
+                <p>Next Prayer</p>
+                <h2 id="next-prayer-name">Fajr</h2>
+                <div class="countdown" id="countdown">00:00:00</div>
+            </div>
+        </section>
+
+        <section class="dashboard">
+            <div class="prayer-card active-card">
+                <div class="card-info">
+                    <h2>Fajr</h2>
+                    <div class="time">05:30 AM</div>
+                </div>
+                <button class="check-btn" aria-label="Mark Fajr as done"></button>
+            </div>
+
+            <div class="prayer-card">
+                <div class="card-info">
+                    <h2>Dhuhr</h2>
+                    <div class="time">01:15 PM</div>
+                </div>
+                <button class="check-btn" aria-label="Mark Dhuhr as done"></button>
+            </div>
+
+            <div class="prayer-card">
+                <div class="card-info">
+                    <h2>Asr</h2>
+                    <div class="time">04:45 PM</div>
+                </div>
+                <button class="check-btn" aria-label="Mark Asr as done"></button>
+            </div>
+
+            <div class="prayer-card">
+                <div class="card-info">
+                    <h2>Maghrib</h2>
+                    <div class="time">06:50 PM</div>
+                </div>
+                <button class="check-btn" aria-label="Mark Maghrib as done"></button>
+            </div>
+
+            <div class="prayer-card">
+                <div class="card-info">
+                    <h2>Isha</h2>
+                    <div class="time">08:15 PM</div>
+                </div>
+                <button class="check-btn" aria-label="Mark Isha as done"></button>
+            </div>
+        </section>
+    </main>
+
+    <canvas id="confetti-canvas"></canvas>
+    <script src="app.js"></script>
+</body>
+
+</html>
