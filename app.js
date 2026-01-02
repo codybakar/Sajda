@@ -1,4 +1,4 @@
-console.log('Sajjda App Initialized');
+// Sajjda App Initialized
 
 // --- Configuration & State ---
 let PRAYERS = [
@@ -58,7 +58,7 @@ function init() {
     
     if (cachedDate === todayStr) {
         // Load from Cache (same day)
-        console.log("Loading from today's cache");
+
         const cachedPrayers = JSON.parse(localStorage.getItem('cachedPrayerData'));
         const cachedLoc = localStorage.getItem('cachedLocationName');
         
@@ -189,7 +189,7 @@ function getUserLocation() {
 }
 
 function onLocationSuccess(position) {
-    console.log("Location obtained:", position.coords);
+
     const lat = position.coords.latitude;
     const lng = position.coords.longitude;
     
@@ -247,7 +247,7 @@ function fetchPrayerTimes(lat, lng) {
     // Aladhan API (HTTPS)
     const apiURL = `https://api.aladhan.com/v1/timings/${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}?latitude=${lat}&longitude=${lng}&method=2`;
 
-    console.log("Fetching prayer times from:", apiURL);
+
     
     fetch(apiURL, { timeout: 10000 })
         .then(response => {
@@ -268,13 +268,13 @@ function fetchPrayerTimes(lat, lng) {
             PRAYERS[3].time = timings.Maghrib;
             PRAYERS[4].time = timings.Isha;
 
-            console.log("Prayer times fetched successfully:", PRAYERS);
+
             updateUIWithTimes();
             
             // SAVE TO CACHE
             localStorage.setItem('cachedPrayerData', JSON.stringify(PRAYERS));
             localStorage.setItem('cachedDate', date.toDateString());
-            console.log("Cache saved");
+
         })
         .catch(err => {
             console.error("Prayer times fetch error:", err);
@@ -708,7 +708,7 @@ function updateProgress() {
     const completed = prayerStatus.filter(Boolean).length;
     const total = PRAYERS.length;
     
-    // completedCountEl.textContent = completed; 
+ 
     
     const radius = 82;
     const circumference = 2 * Math.PI * radius; // ~515.22
