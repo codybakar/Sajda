@@ -415,6 +415,69 @@ function renderHistoryGrid() {
     }
 }
 
+// Edit History Functions
+function renderEditHistory() {
+    const editList = document.getElementById('history-edit-list');
+    editList.innerHTML = '';
+    
+    // Get last 30 days, sorted by date (newest first)
+    const sortedDates = Object.keys(prayerHistory).sort().reverse().slice(0, 30);
+    
+    sortedDates.forEach(dateStr => {
+        const count = prayerHistory[dateStr];
+        const date = new Date(dateStr);
+        const dayName = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        
+        const item = document.createElement('div');
+        item.className = 'history-edit-item';
+        
+        item.innerHTML = `
+            <span class="history-edit-item-date">${dayName}</span>
+            <div class="history-edit-item-controls">
+                <input type="number" class="edit-count-input" data-date="${dateStr}" value="${count}" min="0" max="5">
+                <button class="edit-save-btn" onclick="saveHistoryEdit('${dateStr}')">✓</button>
+                <button class="edit-delete-btn" onclick="deleteHistoryEntry('${dateStr}')">🗑️</button>
+            </div>
+        `;
+        
+        editList.appendChild(item);
+    });
+}
+
+function saveHistoryEdit(dateStr) {
+    const input = document.querySelector(`input[data-date="${dateStr}"]`);
+    const newValue = parseInt(input.value);
+    
+    if (newValue >= 0 && newValue <= 5) {
+        prayerHistory[dateStr] = newValue;
+        localStorage.setItem('prayerHistory', JSON.stringify(prayerHistory));
+        renderStats();
+        renderEditHistory();
+    } else {
+        alert('Please enter a number between 0 and 5');
+    }
+}
+
+function deleteHistoryEntry(dateStr) {
+    if (confirm('Delete history for this day?')) {
+        delete prayerHistory[dateStr];
+        localStorage.setItem('prayerHistory', JSON.stringify(prayerHistory));
+        renderStats();
+        renderEditHistory();
+    }
+}
+
+// Toggle Edit History Panel
+const toggleEditBtn = document.getElementById('toggle-edit-history');
+const editPanel = document.getElementById('edit-history-panel');
+
+toggleEditBtn.addEventListener('click', () => {
+    editPanel.classList.toggle('hidden');
+    if (!editPanel.classList.contains('hidden')) {
+        renderEditHistory();
+    }
+});
+
 // Start
 // --- Logic: Progress ---
 
