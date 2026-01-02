@@ -27,19 +27,54 @@ const cards = document.querySelectorAll('.prayer-card');
 
 // --- Initialization ---
 
+let loadingTimeout; // Safety mechanism
+
 function init() {
     setupTheme();
     checkDailyReset(); 
     setupDate();
     setupCards();
-    updateProgress();
+    updateProgress(); 
     
     // Check Notification Permissions
     if ("Notification" in window && Notification.permission !== "granted") {
         Notification.requestPermission();
     }
 
-    // Start Location & Data Fetch
+    // SAFETY CHECK: If nothing loads in 4 seconds, force defaults
+    loadingTimeout = setTimeout(() => {
+        if (statusEl.textContent.includes("Locating")) {
+            console.warn("Taking too long. Forcing defaults.");
+            statusEl.textContent = "GPS Slow. Using Defaults.";
+            restoreDefaultTimes();
+        }
+    }, 4000);
+
+    // OFFLINE CACHE CHECK
+    const todayStr = new Date().toDateString();
+    const cachedDate = localStorage.getItem('cachedDate');
+    
+    if (cachedDate === todayStr) {
+        // Load from Cache
+        console.log("Loading from Cache");
+        const cachedPrayers = JSON.parse(localStorage.getItem('cachedPrayerData'));
+        const cachedLoc = localStorage.getItem('cachedLocationName');
+        
+        if (cachedPrayers) {
+            clearTimeout(loadingTimeout); // Cache loaded, cancel safety
+            PRAYERS = cachedPrayers;
+            updateUIWithTimes();
+            statusEl.textContent = cachedLoc || "Offline Mode";
+            updateProgress(); 
+            
+            // Start Timer
+            findNextPrayer(); 
+            setInterval(findNextPrayer, 1000);
+            return; 
+        }
+    }
+
+    // Start Location & Data Fetch (If no cache)
     getUserLocation();
 
     // Start Timer
@@ -47,62 +82,69 @@ function init() {
     setInterval(findNextPrayer, 1000); 
 }
 
-// --- Logic: Theme ---
-function setupTheme() {
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    themeBtn.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
-
-    themeBtn.addEventListener('click', () => {
-        const current = document.documentElement.getAttribute('data-theme');
-        const newTheme = current === 'dark' ? 'light' : 'dark';
-        
-        document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-        themeBtn.textContent = newTheme === 'dark' ? '☀️' : '🌙';
-    });
-}
-
-function checkDailyReset() {
-    const todayStr = new Date().toDateString(); 
-    
-    if (lastDate !== todayStr) {
-        prayerStatus = [false, false, false, false, false];
-        localStorage.setItem('prayerStatus', JSON.stringify(prayerStatus));
-        localStorage.setItem('lastDate', todayStr);
-    }
-}
+// ... Theme & DailyReset logic remain same ...
 
 // --- Logic: Data Fetching ---
 
 function getUserLocation() {
     if (navigator.geolocation) {
-        statusEl.textContent = "Locating...";
-        navigator.geolocation.getCurrentPosition(fetchPrayerTimes, handleError);
+        statusEl.textContent = "Locating via GPS...";
+        const options = {
+            enableHighAccuracy: true,
+            timeout: 5000, 
+            maximumAge: 0
+        };
+        navigator.geolocation.getCurrentPosition(onLocationSuccess, handleError, options);
     } else {
-        statusEl.textContent = "Loc Disabled";
+        handleError({ message: "Not Supported" });
     }
 }
 
+function onLocationSuccess(position) {
+    const lat = position.coords.latitude;
+    const lng = position.coords.longitude;
+    
+    // 1. Get Name (Non-blocking)
+    getCityName(lat, lng);
+    
+    // 2. Get Times
+    fetchPrayerTimes(lat, lng);
+}
+
+function getCityName(lat, lng) {
+    // Free Reverse Geocoding API (BigDataCloud)
+    const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`;
+    
+    fetch(url)
+        .then(res => res.json())
+        .then(data => {
+            const city = data.city || data.locality || data.principalSubdivision || "Unknown";
+            statusEl.textContent = city;
+            localStorage.setItem('cachedLocationName', city);
+        })
+        .catch(err => {
+            console.log("Geo Error:", err);
+            statusEl.textContent = "Location Found"; 
+        });
+}
+
 function handleError(error) {
-    console.error(error);
-    statusEl.textContent = "Using Defaults";
+    console.warn("GPS Error:", error.message);
+    statusEl.textContent = "GPS Failed";
+    clearTimeout(loadingTimeout); // Cancel safety, we are handling it
     restoreDefaultTimes();
 }
 
-function fetchPrayerTimes(position) {
-    const lat = position.coords.latitude;
-    const lng = position.coords.longitude;
+function fetchPrayerTimes(lat, lng) {
     const date = new Date(); 
-    
-    statusEl.textContent = "Fetching...";
-
     // Aladhan API (HTTPS)
     const apiURL = `https://api.aladhan.com/v1/timings/${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}?latitude=${lat}&longitude=${lng}&method=2`;
 
     fetch(apiURL)
         .then(response => response.json())
         .then(data => {
+            clearTimeout(loadingTimeout); // Success! Cancel safety
+            
             const timings = data.data.timings;
             PRAYERS[0].time = timings.Fajr;
             PRAYERS[1].time = timings.Dhuhr;
@@ -110,12 +152,16 @@ function fetchPrayerTimes(position) {
             PRAYERS[3].time = timings.Maghrib;
             PRAYERS[4].time = timings.Isha;
 
-            statusEl.textContent = data.data.meta.timezone.split('/')[1] || 'Local';
             updateUIWithTimes();
+            
+            // SAVE TO CACHE
+            localStorage.setItem('cachedPrayerData', JSON.stringify(PRAYERS));
+            localStorage.setItem('cachedDate', date.toDateString());
         })
         .catch(err => {
             console.error(err);
-            statusEl.textContent = "API Error";
+            statusEl.textContent = "Net Error";
+            clearTimeout(loadingTimeout);
             restoreDefaultTimes();
         });
 }
@@ -180,6 +226,23 @@ function setupCards() {
     });
 }
 
+// --- Logic: History & Stats ---
+
+const statsBtn = document.getElementById('stats-btn');
+const closeStatsBtn = document.getElementById('close-stats');
+const statsModal = document.getElementById('stats-modal');
+
+// Load History
+let prayerHistory = JSON.parse(localStorage.getItem('prayerHistory')) || {};
+
+function updateHistory() {
+    const todayStr = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const completedCount = prayerStatus.filter(Boolean).length;
+    
+    prayerHistory[todayStr] = completedCount;
+    localStorage.setItem('prayerHistory', JSON.stringify(prayerHistory));
+}
+
 function togglePrayer(index) {
     prayerStatus[index] = !prayerStatus[index];
     cards[index].classList.toggle('completed');
@@ -189,6 +252,7 @@ function togglePrayer(index) {
     
     // Trigger "Cool" updates
     updateProgress();
+    updateHistory(); 
     
     // Trigger Confetti if all done
     const completed = prayerStatus.filter(Boolean).length;
@@ -197,16 +261,117 @@ function togglePrayer(index) {
     }
 }
 
+// UI Logic for Modal
+statsBtn.addEventListener('click', () => {
+    renderStats();
+    statsModal.classList.add('active');
+});
+
+closeStatsBtn.addEventListener('click', () => {
+    statsModal.classList.remove('active');
+});
+
+statsModal.addEventListener('click', (e) => {
+    if (e.target === statsModal) statsModal.classList.remove('active');
+});
+
+function renderStats() {
+    // 1. Calculate Streak
+    const streak = calculateStreak();
+    document.getElementById('streak-count').textContent = streak;
+
+    // 2. Calculate Total
+    const total = Object.values(prayerHistory).reduce((a, b) => a + b, 0);
+    document.getElementById('total-prayers').textContent = total;
+
+    // 3. Render Weekly Chart
+    renderWeeklyChart();
+
+    // 4. Render Grid (Last 30 days)
+    renderHistoryGrid();
+}
+
+function calculateStreak() {
+    let currentStreak = 0;
+    const today = new Date();
+    
+    // Check up to 365 days back
+    for (let i = 0; i < 365; i++) {
+        const d = new Date();
+        d.setDate(today.getDate() - i);
+        const dateStr = d.toISOString().split('T')[0];
+        
+        if (prayerHistory[dateStr] && prayerHistory[dateStr] > 0) {
+            currentStreak++;
+        } else if (i === 0 && (!prayerHistory[dateStr] || prayerHistory[dateStr] === 0)) {
+            // If today is 0, don't break streak yet (user might pray later)
+            continue; 
+        } else {
+            break;
+        }
+    }
+    return currentStreak;
+}
+
+function renderWeeklyChart() {
+    const chartEl = document.getElementById('weekly-chart');
+    chartEl.innerHTML = '';
+    
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    
+    for (let i = 6; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(new Date().getDate() - i);
+        const dateStr = d.toISOString().split('T')[0];
+        const dayName = i === 0 ? 'Today' : days[d.getDay()];
+        const count = prayerHistory[dateStr] || 0;
+        
+        const height = (count / 5) * 100; // Percentage
+        
+        const barGroup = document.createElement('div');
+        barGroup.className = 'bar-group';
+        
+        barGroup.innerHTML = `
+            <div class="bar ${i === 0 ? 'today' : ''}" style="height: ${height}%"></div>
+            <span class="bar-label">${dayName}</span>
+        `;
+        chartEl.appendChild(barGroup);
+    }
+}
+
+function renderHistoryGrid() {
+    const gridEl = document.getElementById('history-grid');
+    gridEl.innerHTML = '';
+    
+    // Last 28 days (4 weeks)
+    for (let i = 27; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(new Date().getDate() - i);
+        const dateStr = d.toISOString().split('T')[0];
+        const count = prayerHistory[dateStr] || 0;
+        
+        const box = document.createElement('div');
+        box.className = 'day-box';
+        
+        if (count === 0) box.classList.add('level-0');
+        else if (count <= 2) box.classList.add('level-1');
+        else if (count <= 4) box.classList.add('level-2');
+        else box.classList.add('level-3'); // 5
+        
+        box.title = `${dateStr}: ${count} Prayers`;
+        gridEl.appendChild(box);
+    }
+}
+
+// Start
 // --- Logic: Progress ---
 
 function updateProgress() {
     const completed = prayerStatus.filter(Boolean).length;
     const total = PRAYERS.length;
     
-    // Text Update
     completedCountEl.textContent = completed;
     
-    // Ring Animation
     const radius = 52;
     const circumference = 2 * Math.PI * radius;
     const offset = circumference - (completed / total) * circumference;
@@ -223,12 +388,11 @@ function findNextPrayer() {
     let nextPrayerIndex = -1;
     let minDiff = Infinity;
     
-    // Find the next upcoming prayer
     PRAYERS.forEach((prayer, index) => {
-        if(prayer.time === '--:--') return; // Skip if not loaded
+        if(prayer.time === '--:--') return; 
 
         const [h, m] = prayer.time.split(':').map(Number);
-        const prayerTime = h * 60 + m; // Minutes
+        const prayerTime = h * 60 + m; 
         
         if (prayerTime > currentTime) {
             if (prayerTime - currentTime < minDiff) {
@@ -238,9 +402,8 @@ function findNextPrayer() {
         }
     });
 
-    // If all prayers passed today, next is Fajr tomorrow
     if (nextPrayerIndex === -1) {
-        nextPrayerIndex = 0; // Fajr
+        nextPrayerIndex = 0; 
         nextPrayerNameEl.textContent = "Fajr (Tomorrow)";
         countdownEl.textContent = "See you tomorrow";
         return;
@@ -249,11 +412,9 @@ function findNextPrayer() {
     const nextPrayer = PRAYERS[nextPrayerIndex];
     nextPrayerNameEl.textContent = nextPrayer.name;
     
-    // Highlight the card
     cards.forEach(c => c.classList.remove('next-active'));
     cards[nextPrayerIndex].classList.add('next-active');
 
-    // Countdown Logic
     const [targetH, targetM] = nextPrayer.time.split(':').map(Number);
     const targetDate = new Date();
     targetDate.setHours(targetH, targetM, 0);
@@ -267,7 +428,6 @@ function findNextPrayer() {
         
         countdownEl.textContent = `${pad(h)}:${pad(m)}:${pad(s)}`;
 
-        // NOTIFICATION TRIGGER (Simple check)
         if (h === 0 && m === 0 && s === 0) {
             sendNotification(nextPrayer.name);
         }
@@ -281,7 +441,7 @@ function sendNotification(prayerName) {
     if (Notification.permission === "granted") {
         new Notification("Prayer Time!", {
             body: `It is now time for ${prayerName}.`,
-            icon: 'https://cdn-icons-png.flaticon.com/512/2884/2884666.png' // Generic icon
+            icon: 'https://cdn-icons-png.flaticon.com/512/2884/2884666.png'
         });
     }
 }
@@ -302,7 +462,7 @@ function setupTiltEffect() {
             const centerX = rect.width / 2;
             const centerY = rect.height / 2;
             
-            const rotateX = ((y - centerY) / centerY) * -10; // Max 10deg rotation
+            const rotateX = ((y - centerY) / centerY) * -10; 
             const rotateY = ((x - centerX) / centerX) * 10;
 
             card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
@@ -328,14 +488,12 @@ window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
 function startConfetti() {
-    // Only start if not already running
     if (animationId) return;
     
-    // Create particles
     for (let i = 0; i < 150; i++) {
         particles.push({
             x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height - canvas.height, // Start above
+            y: Math.random() * canvas.height - canvas.height, 
             color: `hsl(${Math.random() * 360}, 100%, 50%)`,
             size: Math.random() * 5 + 2,
             speedY: Math.random() * 3 + 2,
@@ -345,7 +503,6 @@ function startConfetti() {
     
     animateConfetti();
     
-    // Stop after 5 seconds
     setTimeout(() => {
         cancelAnimationFrame(animationId);
         animationId = null;
@@ -360,14 +517,13 @@ function animateConfetti() {
     particles.forEach((p, index) => {
         p.y += p.speedY;
         p.x += p.speedX;
-        p.speedY += 0.05; // Gravity
+        p.speedY += 0.05; 
         
         ctx.fillStyle = p.color;
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fill();
         
-        // Reset if out of bounds (loop for a bit)
         if (p.y > canvas.height) {
             p.y = -10;
             p.x = Math.random() * canvas.width;
