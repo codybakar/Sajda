@@ -41,30 +41,32 @@ function init() {
         Notification.requestPermission();
     }
 
-    // SAFETY CHECK: If nothing loads in 4 seconds, force defaults
+    // SAFETY CHECK: If nothing loads in 20 seconds, force defaults
     loadingTimeout = setTimeout(() => {
-        if (statusEl.textContent.includes("Locating")) {
-            console.warn("Taking too long. Forcing defaults.");
-            statusEl.textContent = "GPS Slow. Using Defaults.";
-            restoreDefaultTimes();
+        if (statusEl.textContent.includes("Locating") || statusEl.textContent.includes("Trying")) {
+            console.warn("GPS timeout after 20 seconds. Using defaults.");
+            statusEl.textContent = "GPS Timeout. Using Defaults.";
+            if (!PRAYERS[0].time || PRAYERS[0].time === '--:--') {
+                restoreDefaultTimes();
+            }
         }
-    }, 4000);
+    }, 20000);
 
     // OFFLINE CACHE CHECK
     const todayStr = new Date().toDateString();
     const cachedDate = localStorage.getItem('cachedDate');
     
     if (cachedDate === todayStr) {
-        // Load from Cache
-        console.log("Loading from Cache");
+        // Load from Cache (same day)
+        console.log("Loading from today's cache");
         const cachedPrayers = JSON.parse(localStorage.getItem('cachedPrayerData'));
         const cachedLoc = localStorage.getItem('cachedLocationName');
         
-        if (cachedPrayers) {
+        if (cachedPrayers && Array.isArray(cachedPrayers) && cachedPrayers.length === 5) {
             clearTimeout(loadingTimeout); // Cache loaded, cancel safety
             PRAYERS = cachedPrayers;
             updateUIWithTimes();
-            statusEl.textContent = cachedLoc || "Offline Mode";
+            statusEl.textContent = cachedLoc || "Cached Location";
             updateProgress(); 
             
             // Start Timer
@@ -151,31 +153,36 @@ if (refreshBtn) {
 
 function getUserLocation() {
     if (!navigator.geolocation) {
+        console.error("Geolocation not supported");
         handleError({ message: "Not Supported" });
         return;
     }
 
     statusEl.textContent = "Locating (GPS)...";
     
-    // Attempt 1: High Accuracy
+    // Attempt 1: High Accuracy (GPS)
     navigator.geolocation.getCurrentPosition(
         onLocationSuccess,
         (err) => {
-            console.warn("High Acc failed, trying Low Acc...", err);
+            console.warn("GPS High Accuracy failed:", err.code, err.message);
             statusEl.textContent = "Trying Network Loc...";
             
-            // Attempt 2: Low Accuracy (Fallback)
+            // Attempt 2: Low Accuracy (Network/IP based)
             navigator.geolocation.getCurrentPosition(
                 onLocationSuccess,
-                handleError, // Final Error Handler
-                { enableHighAccuracy: false, timeout: 10000, maximumAge: 0 }
+                (err2) => {
+                    console.warn("GPS Low Accuracy also failed:", err2.code, err2.message);
+                    handleError(err2);
+                },
+                { enableHighAccuracy: false, timeout: 15000, maximumAge: 300000 }
             );
         },
-        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
 }
 
 function onLocationSuccess(position) {
+    console.log("Location obtained:", position.coords);
     const lat = position.coords.latitude;
     const lng = position.coords.longitude;
     
@@ -209,11 +216,18 @@ function getCityName(lat, lng) {
 }
 
 function handleError(error) {
-    console.warn("GPS Final Error:", error.message);
-    statusEl.textContent = "Use Settings to Set Loc"; // Hint to user
+    console.error("GPS Error Code:", error.code, "Message:", error.message);
+    
+    // Error codes: 1=PERMISSION_DENIED, 2=POSITION_UNAVAILABLE, 3=TIMEOUT
+    let errorMsg = "GPS Failed";
+    if (error.code === 1) errorMsg = "GPS Permission Denied";
+    else if (error.code === 2) errorMsg = "GPS Unavailable";
+    else if (error.code === 3) errorMsg = "GPS Timeout";
+    
+    statusEl.textContent = errorMsg;
     clearTimeout(loadingTimeout);
     
-    // Still load defaults so app is usable
+    // Use defaults so app is still functional
     restoreDefaultTimes();
     
     if(refreshBtn) {
@@ -226,9 +240,18 @@ function fetchPrayerTimes(lat, lng) {
     // Aladhan API (HTTPS)
     const apiURL = `https://api.aladhan.com/v1/timings/${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}?latitude=${lat}&longitude=${lng}&method=2`;
 
-    fetch(apiURL)
-        .then(response => response.json())
+    console.log("Fetching prayer times from:", apiURL);
+    
+    fetch(apiURL, { timeout: 10000 })
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return response.json();
+        })
         .then(data => {
+            if (!data.data || !data.data.timings) {
+                throw new Error("Invalid API response");
+            }
+            
             clearTimeout(loadingTimeout); // Success! Cancel safety
             
             const timings = data.data.timings;
@@ -238,15 +261,17 @@ function fetchPrayerTimes(lat, lng) {
             PRAYERS[3].time = timings.Maghrib;
             PRAYERS[4].time = timings.Isha;
 
+            console.log("Prayer times fetched successfully:", PRAYERS);
             updateUIWithTimes();
             
             // SAVE TO CACHE
             localStorage.setItem('cachedPrayerData', JSON.stringify(PRAYERS));
             localStorage.setItem('cachedDate', date.toDateString());
+            console.log("Cache saved");
         })
         .catch(err => {
-            console.error(err);
-            statusEl.textContent = "Net Error";
+            console.error("Prayer times fetch error:", err);
+            statusEl.textContent = "API Error - Using Defaults";
             clearTimeout(loadingTimeout);
             restoreDefaultTimes();
         });
