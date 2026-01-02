@@ -79,10 +79,42 @@ function init() {
 
     // Start Timer
     findNextPrayer(); 
-    setInterval(findNextPrayer, 1000); 
 }
 
-// ... Theme & DailyReset logic remain same ...
+// --- Theme & Daily Reset Logic ---
+
+function setupTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.body.classList.add(savedTheme);
+    
+    if (themeBtn) {
+        themeBtn.addEventListener('click', () => {
+            const currentTheme = document.body.classList.contains('dark') ? 'dark' : 'light';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.body.classList.remove('dark', 'light');
+            document.body.classList.add(newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            themeBtn.textContent = newTheme === 'dark' ? '🌙' : '☀️';
+        });
+        
+        themeBtn.textContent = savedTheme === 'dark' ? '🌙' : '☀️';
+    }
+}
+
+function checkDailyReset() {
+    const today = new Date().toDateString();
+    
+    if (lastDate && lastDate !== today) {
+        console.log("New day detected. Resetting progress.");
+        prayerStatus = [false, false, false, false, false];
+        localStorage.setItem('prayerStatus', JSON.stringify(prayerStatus));
+    }
+    
+    localStorage.setItem('lastDate', today);
+    lastDate = today;
+}
 
 // --- Logic: Data Fetching ---
 
