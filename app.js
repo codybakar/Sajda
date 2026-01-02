@@ -448,6 +448,38 @@ function renderCalendar() {
     const lastDateOfMonth = lastDay.getDate();
     const prevLastDate = prevLastDay.getDate();
     
+    // Calculate allowed date range (today to today + 2 days)
+    const today = new Date();
+    const minDate = new Date(today);
+    minDate.setHours(0, 0, 0, 0);
+    const maxDate = new Date(today);
+    maxDate.setDate(maxDate.getDate() + 2);
+    maxDate.setHours(23, 59, 59, 999);
+    
+    // Check if next month button should be disabled
+    const firstDayOfNextMonth = new Date(year, month + 1, 1);
+    if (firstDayOfNextMonth > maxDate) {
+        nextMonthBtn.disabled = true;
+        nextMonthBtn.style.opacity = '0.5';
+        nextMonthBtn.style.cursor = 'not-allowed';
+    } else {
+        nextMonthBtn.disabled = false;
+        nextMonthBtn.style.opacity = '1';
+        nextMonthBtn.style.cursor = 'pointer';
+    }
+    
+    // Check if prev month button should be disabled
+    if (year < today.getFullYear() || 
+        (year === today.getFullYear() && month <= today.getMonth())) {
+        prevMonthBtn.disabled = true;
+        prevMonthBtn.style.opacity = '0.5';
+        prevMonthBtn.style.cursor = 'not-allowed';
+    } else {
+        prevMonthBtn.disabled = false;
+        prevMonthBtn.style.opacity = '1';
+        prevMonthBtn.style.cursor = 'pointer';
+    }
+    
     let html = '';
     
     // Previous month's days
@@ -456,17 +488,22 @@ function renderCalendar() {
     }
     
     // Current month's days
-    const today = new Date();
     for (let date = 1; date <= lastDateOfMonth; date++) {
         const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
+        const currentDate = new Date(year, month, date);
+        currentDate.setHours(0, 0, 0, 0);
+        
         const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === date;
         const isSelected = selectedDateForPrayers && selectedDateForPrayers === dateStr;
+        const isOutOfRange = currentDate < minDate || currentDate > maxDate;
         
         let className = 'calendar-day';
         if (isToday) className += ' today';
         if (isSelected) className += ' selected';
+        if (isOutOfRange) className += ' disabled';
         
-        html += `<div class="calendar-day ${className}" onclick="selectDateForPrayers('${dateStr}')">${date}</div>`;
+        const clickHandler = isOutOfRange ? '' : `onclick="selectDateForPrayers('${dateStr}')"`;
+        html += `<div class="calendar-day ${className}" ${clickHandler}>${date}</div>`;
     }
     
     // Next month's days
@@ -530,8 +567,15 @@ calendarToggleBtn.addEventListener('click', () => {
 });
 
 prevMonthBtn.addEventListener('click', () => {
-    currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
-    renderCalendar();
+    const newDate = new Date(currentCalendarDate);
+    newDate.setMonth(newDate.getMonth() - 1);
+    
+    const today = new Date();
+    if (newDate.getFullYear() > today.getFullYear() || 
+        (newDate.getFullYear() === today.getFullYear() && newDate.getMonth() >= today.getMonth())) {
+        currentCalendarDate = newDate;
+        renderCalendar();
+    }
 });
 
 nextMonthBtn.addEventListener('click', () => {

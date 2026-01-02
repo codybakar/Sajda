@@ -1,33 +1,35 @@
 :root {
-    /* Premium Color Palette */
-    --bg-dark: #0f172a; /* Midnight Blue */
-    --accent-primary: #8b5cf6; /* Violet */
-    --accent-secondary: #f59e0b; /* Amber/Gold */
-    --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
+    /* Material You Color Palette - Dark */
+    --bg-dark: #11121b; /* Rich dark background */
+    --accent-primary: #d0bcff; /* Soft lavender */
+    --accent-secondary: #ffd66f; /* Warm gold */
+    --text-primary: #fffbfe;
+    --text-secondary: #cab5d6;
+    --surface: #1d1b2e; /* Card background */
+    --surface-variant: #2a2843; /* Elevated surface */
     
-    /* Glassmorphism Variables */
-    --glass-bg: rgba(255, 255, 255, 0.05); /* Very transparent white */
-    --glass-border: rgba(255, 255, 255, 0.1);
-    --glass-blur: 16px;
-    --card-radius: 20px;
+    /* Material Design Variables */
+    --elevation-1: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+    --elevation-2: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+    --elevation-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+    --radius: 28px;
+    --radius-sm: 12px;
     
     --font-main: 'Outfit', sans-serif;
 }
 
 body.light {
-    --bg-dark: linear-gradient(135deg, #f0f9ff 0%, #e0f4ff 100%); /* Light gradient */
-    --accent-primary: #5b21b6; /* Deep purple */
-    --accent-secondary: #d97706; /* Deep amber */
-    --text-primary: #1e1b4b; /* Deep indigo */
-    --text-secondary: #6b7280; /* Better gray */
-    
-    --glass-bg: rgba(255, 255, 255, 0.75); /* More opaque, crisp */
-    --glass-border: rgba(139, 69, 255, 0.25); /* Purple border for light mode */
+    --bg-dark: #fffbfe; /* Off-white background */
+    --accent-primary: #6750a4; /* Deep purple */
+    --accent-secondary: #b29900; /* Deep amber */
+    --text-primary: #1c1b1f; /* Dark text */
+    --text-secondary: #6b5a72; /* Medium gray */
+    --surface: #fffbfe; /* Card background */
+    --surface-variant: #f3eff5; /* Elevated surface */
 }
 
 body.light {
-    background: linear-gradient(135deg, #f0f9ff 0%, #e0f4ff 100%);
+    background: #fffbfe;
     background-attachment: fixed;
 }
 
@@ -172,24 +174,21 @@ body.light .bottom-nav {
 
 /* Glass Main Container */
 .glass-container {
-    background: var(--glass-bg);
-    backdrop-filter: blur(var(--glass-blur));
-    -webkit-backdrop-filter: blur(var(--glass-blur));
-    border: 1px solid var(--glass-border);
-    border-radius: var(--card-radius);
+    background: var(--surface);
+    border: none;
+    border-radius: var(--radius);
     padding: 2rem;
     width: 90%;
     max-width: 450px; 
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08); /* Lighter shadow for light mode */
+    box-shadow: var(--elevation-2);
     min-height: 80vh;
-    margin: 20px 0; /* Add margin for mobile scrolling */
-    transition: background 0.3s ease, border 0.3s ease;
+    margin: 20px 0;
+    transition: all 0.3s ease;
 }
 
 body.light .glass-container {
-    box-shadow: 0 8px 32px 0 rgba(91, 33, 182, 0.12);
-    border: 2px solid rgba(139, 69, 255, 0.2);
-    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    background: var(--surface);
 }
 
 /* Header */
@@ -231,17 +230,25 @@ body.light .glass-container {
 }
 
 .theme-btn {
-    background: transparent;
+    background: var(--surface-variant);
     border: none;
     font-size: 1.5rem;
     cursor: pointer;
-    padding: 5px;
+    padding: 0.5rem;
     border-radius: 50%;
-    transition: transform 0.3s ease;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    box-shadow: var(--elevation-1);
 }
 
 .theme-btn:hover {
-    background: rgba(255,255,255,0.1);
+    background: var(--accent-primary);
+    transform: scale(1.1);
+    box-shadow: var(--elevation-2);
 }
 
 .theme-btn.clicked {
@@ -281,51 +288,53 @@ body.light .glass-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    transition: transform 0.1s ease, background 0.3s ease; /* Fast transform for tilt */
+    transition: all 0.2s ease;
     cursor: pointer;
-    transform-style: preserve-3d;
+    border-radius: var(--radius-sm);
+    background: var(--surface-variant);
+    border: none;
+    box-shadow: var(--elevation-1);
 }
 
 body.light .prayer-card {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.6), rgba(139, 69, 255, 0.05));
-    border: 1.5px solid rgba(139, 69, 255, 0.2);
-    box-shadow: 0 4px 15px rgba(91, 33, 182, 0.08);
+    background: var(--surface-variant);
+    box-shadow: var(--elevation-1);
 }
 
 .prayer-card:hover {
-    background: rgba(255, 255, 255, 0.08);
-    transform: translateY(-2px);
-    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-4px);
+    box-shadow: var(--elevation-2);
 }
 
 body.light .prayer-card:hover {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(139, 69, 255, 0.1));
-    border-color: rgba(139, 69, 255, 0.4);
-    box-shadow: 0 8px 20px rgba(91, 33, 182, 0.15);
+    box-shadow: var(--elevation-2);
 }
 
 .prayer-card h2 {
     font-size: 1.2rem;
     font-weight: 600;
+    color: var(--accent-primary);
 }
 
 .prayer-card .time {
     color: var(--text-secondary);
-    font-size: 1rem;
+    font-size: 0.9rem;
 }
 
 .check-btn {
-    width: 30px;
-    height: 30px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    border: 2px solid var(--glass-border);
-    background: transparent;
+    border: none;
+    background: var(--accent-primary);
     cursor: pointer;
     transition: all 0.2s ease;
+    opacity: 0.3;
 }
 
 .check-btn:hover {
-    border-color: var(--accent-secondary);
+    opacity: 0.6;
+    transform: scale(1.1);
 }
 
 /* Hero Section */
@@ -333,11 +342,12 @@ body.light .prayer-card:hover {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: rgba(255, 255, 255, 0.05);
-    padding: 1.5rem;
-    border-radius: 20px;
+    background: var(--surface-variant);
+    padding: 2rem;
+    border-radius: var(--radius-sm);
     margin-bottom: 2rem;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: none;
+    box-shadow: var(--elevation-1);
 }
 
 body.light .hero-section {
@@ -536,23 +546,31 @@ body.light .prayer-card.completed .check-btn {
 
 .streak-card, .stat-card {
     flex: 1;
-    background: rgba(255, 255, 255, 0.05);
-    padding: 1rem;
-    border-radius: 15px;
+    background: var(--surface-variant);
+    padding: 1.5rem;
+    border-radius: var(--radius-sm);
     text-align: center;
-    border: 1px solid var(--glass-border);
+    border: none;
+    box-shadow: var(--elevation-1);
+    transition: all 0.2s ease;
+}
+
+.streak-card:hover, .stat-card:hover {
+    box-shadow: var(--elevation-2);
+    transform: translateY(-2px);
 }
 
 body.light .streak-card, 
 body.light .stat-card {
-    background: linear-gradient(135deg, rgba(139, 69, 255, 0.1), rgba(217, 119, 6, 0.08));
-    border: 1.5px solid rgba(139, 69, 255, 0.25);
-    box-shadow: 0 4px 12px rgba(91, 33, 182, 0.1);
+    background: var(--surface-variant);
+    box-shadow: var(--elevation-1);
 }
 
 .streak-card h3, .stat-card h3 {
-    font-size: 2rem;
-    margin: 5px 0;
+    font-size: 2.5rem;
+    margin: 0.5rem 0;
+    color: var(--accent-primary);
+    font-weight: 700;
 }
 
 .streak-card p, .stat-card p {
@@ -560,15 +578,128 @@ body.light .stat-card {
     color: var(--text-secondary);
 }
 
-/* Charts */
-.chart-section, .history-grid-section {
-    margin-bottom: 2rem;
+/* Light Mode - Charts & History */
+body.light .chart-section,
+body.light .history-grid-section,
+body.light .calendar-section {
+    background: rgba(255, 255, 255, 0.6);
+    border: 1.5px solid rgba(139, 69, 255, 0.2);
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(91, 33, 182, 0.08);
 }
 
-.chart-section h3, .history-grid-section h3 {
-    margin-bottom: 1rem;
-    font-size: 1rem;
-    color: var(--text-secondary);
+body.light .chart-section h3,
+body.light .history-grid-section h3,
+body.light .calendar-section .calendar-header-main h3 {
+    color: var(--text-primary);
+}
+
+body.light .bar {
+    background: var(--accent-primary);
+}
+
+body.light .bar.today {
+    background: var(--accent-secondary);
+}
+
+body.light .history-grid-section {
+    margin-bottom: 3rem;
+}
+
+body.light .day-box {
+    border: 1px solid rgba(139, 69, 255, 0.15);
+}
+
+body.light .day-box.level-0 { 
+    background: rgba(139, 69, 255, 0.05); 
+}
+body.light .day-box.level-1 { 
+    background: rgba(139, 69, 255, 0.2); 
+}
+body.light .day-box.level-2 { 
+    background: rgba(139, 69, 255, 0.4); 
+}
+body.light .day-box.level-3 { 
+    background: var(--accent-secondary);
+    box-shadow: 0 0 5px rgba(217, 119, 6, 0.3);
+}
+
+/* Light Mode - Calendar */
+body.light .toggle-calendar-btn {
+    background: linear-gradient(135deg, var(--accent-primary), rgba(91, 33, 182, 0.8));
+}
+
+body.light .calendar-grid .calendar-day {
+    background: rgba(139, 69, 255, 0.08);
+    border: 1px solid rgba(139, 69, 255, 0.2);
+    color: var(--text-primary);
+}
+
+body.light .calendar-grid .calendar-day:hover {
+    background: rgba(139, 69, 255, 0.15);
+    border-color: var(--accent-primary);
+}
+
+body.light .calendar-grid .calendar-day.today {
+    background: rgba(139, 69, 255, 0.3);
+    border-color: var(--accent-primary);
+}
+
+body.light .calendar-grid .calendar-day.selected {
+    background: var(--accent-primary);
+    color: white;
+}
+
+body.light .calendar-grid .calendar-day.disabled {
+    opacity: 0.3;
+    background: rgba(139, 69, 255, 0.03);
+}
+
+body.light .calendar-panel {
+    background: rgba(139, 69, 255, 0.06);
+    border: 1px solid rgba(139, 69, 255, 0.2);
+}
+
+body.light .prayer-selector-panel {
+    background: rgba(139, 69, 255, 0.08);
+    border: 2px solid rgba(139, 69, 255, 0.25);
+}
+
+body.light .prayer-checkbox {
+    color: var(--text-primary);
+}
+
+body.light .prayer-checkbox input[type="checkbox"] {
+    border-color: rgba(139, 69, 255, 0.3);
+}
+
+body.light .prayer-checkbox input[type="checkbox"]:checked {
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+}
+
+body.light .prayer-selector-save-btn {
+    background: linear-gradient(135deg, var(--accent-primary), rgba(91, 33, 182, 0.8));
+    color: white;
+}
+
+/* Charts */
+.section-title {
+    margin-top: 1.5rem;
+    margin-bottom: 0.8rem;
+    padding: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: 0.5px;
+}
+
+.chart-section, .history-grid-section {
+    margin-bottom: 2rem;
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    padding: 1.5rem;
+    box-shadow: var(--elevation-1);
 }
 
 .bar-chart {
@@ -590,9 +721,13 @@ body.light .stat-card {
     width: 100%;
     max-width: 20px;
     background: var(--accent-primary);
-    border-radius: 5px 5px 0 0;
-    transition: height 1s ease;
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    transition: all 0.3s ease;
     opacity: 0.7;
+}
+
+.bar:hover {
+    opacity: 1;
 }
 
 .bar.today {
@@ -615,57 +750,110 @@ body.light .stat-card {
 
 .day-box {
     aspect-ratio: 1;
-    border-radius: 4px;
-    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    background: var(--surface-variant);
+    transition: all 0.2s ease;
+    cursor: pointer;
 }
 
-.day-box.level-0 { background: rgba(255, 255, 255, 0.05); }
-.day-box.level-1 { background: rgba(139, 92, 246, 0.3); } /* 1-2 prayers */
-.day-box.level-2 { background: rgba(139, 92, 246, 0.6); } /* 3-4 prayers */
-.day-box.level-3 { background: var(--accent-secondary); box-shadow: 0 0 5px var(--accent-secondary); } /* 5 prayers */
-
-/* Edit History Section */
-.edit-history-section {
-    margin-top: 2rem;
-    padding-top: 2rem;
-    border-top: 1px solid var(--glass-border);
+.day-box:hover {
+    box-shadow: var(--elevation-1);
 }
 
-.edit-history-section h3 {
+.day-box.level-0 { 
+    background: var(--surface-variant); 
+    opacity: 0.5;
+}
+.day-box.level-1 { 
+    background: var(--accent-primary);
+    opacity: 0.4;
+    color: #000;
+} /* 1-2 prayers */
+.day-box.level-2 { 
+    background: var(--accent-primary);
+    opacity: 0.7;
+    color: #000;
+} /* 3-4 prayers */
+.day-box.level-3 { 
+    background: var(--accent-secondary);
+    opacity: 1;
+    color: #000;
+    font-weight: 600;
+} /* 5 prayers */
+
+/* Calendar Section */
+.calendar-section {
+    margin-top: 1.5rem;
+    background: var(--surface);
+    border: none;
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--elevation-1);
+}
+
+.calendar-header-main {
     margin-bottom: 1rem;
-    font-size: 1rem;
-    color: var(--text-secondary);
 }
 
-.edit-history-btn {
+.calendar-header-main h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.3rem;
+    color: var(--text-primary);
+}
+
+.calendar-header-main p {
+    margin: 0;
+}
+
+.toggle-calendar-btn {
     width: 100%;
-    padding: 0.75rem;
-    background: rgba(139, 92, 246, 0.2);
-    border: 1px solid var(--accent-primary);
-    color: var(--accent-primary);
-    border-radius: 12px;
+    padding: 1rem;
+    background: var(--accent-primary);
+    border: none;
+    color: #000;
+    border-radius: var(--radius-sm);
     cursor: pointer;
     font-weight: 600;
-    transition: all 0.2s ease;
     font-size: 1rem;
+    transition: all 0.2s ease;
+    margin-bottom: 0.5rem;
+    box-shadow: var(--elevation-1);
 }
 
-.edit-history-btn:hover {
-    background: rgba(139, 92, 246, 0.3);
-    box-shadow: 0 0 10px rgba(139, 92, 246, 0.2);
+.toggle-calendar-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--elevation-2);
+    opacity: 0.9;
+}
+
+.toggle-calendar-btn:active {
+    transform: translateY(0);
 }
 
 /* Calendar Picker */
 .calendar-panel {
     margin-top: 1rem;
-    border: 1px solid var(--glass-border);
-    border-radius: 12px;
-    padding: 1rem;
-    background: rgba(255, 255, 255, 0.05);
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 1.2rem;
+    background: var(--surface-variant);
+    box-shadow: var(--elevation-1);
+    animation: slideDown 0.3s ease;
 }
 
 .calendar-panel.hidden {
     display: none;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .calendar-header {
@@ -709,18 +897,21 @@ body.light .stat-card {
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
+    background: var(--surface-variant);
+    border: none;
     font-size: 0.85rem;
     cursor: pointer;
     transition: all 0.2s ease;
-    color: var(--text-secondary);
+    color: var(--text-primary);
+    box-shadow: var(--elevation-1);
 }
 
 .calendar-day:hover {
-    background: rgba(139, 92, 246, 0.2);
-    border-color: var(--accent-primary);
+    background: var(--accent-primary);
+    color: #000;
+    box-shadow: var(--elevation-2);
+    transform: scale(1.05);
 }
 
 .calendar-day.other-month {
@@ -728,26 +919,44 @@ body.light .stat-card {
     cursor: not-allowed;
 }
 
-.calendar-day.today {
-    background: rgba(139, 92, 246, 0.3);
+.calendar-day.disabled {
+    opacity: 0.2;
+    cursor: not-allowed;
+    background: var(--surface-variant);
+    pointer-events: none;
+}
+
+.calendar-day.disabled:hover {
+    background: var(--surface-variant);
     color: var(--text-primary);
+    transform: scale(1);
+    box-shadow: var(--elevation-1);
+}
+
+.calendar-day.today {
+    background: var(--accent-secondary);
+    color: #000;
     font-weight: 600;
-    border-color: var(--accent-primary);
+    border: none;
+    box-shadow: var(--elevation-2);
 }
 
 .calendar-day.selected {
     background: var(--accent-primary);
-    color: white;
-    border-color: var(--accent-primary);
+    color: #000;
+    border: none;
+    font-weight: 600;
 }
 
 /* Prayer Selector */
 .prayer-selector-panel {
     margin-top: 1rem;
-    border: 2px solid var(--accent-primary);
-    border-radius: 12px;
+    border: none;
+    border-radius: var(--radius-sm);
     padding: 1.5rem;
-    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(139, 92, 246, 0.05));
+    background: var(--surface-variant);
+    box-shadow: var(--elevation-1);
+    animation: slideDown 0.3s ease;
 }
 
 .prayer-selector-panel.hidden {
@@ -760,16 +969,17 @@ body.light .stat-card {
     align-items: center;
     margin-bottom: 1.5rem;
     padding-bottom: 1rem;
-    border-bottom: 1px solid var(--glass-border);
+    border-bottom: 1px solid rgba(208, 188, 255, 0.2);
 }
 
 .prayer-selector-header h3 {
     color: var(--accent-primary);
     margin: 0;
+    font-size: 1.1rem;
 }
 
 .close-selector-btn {
-    background: none;
+    background: var(--surface);
     border: none;
     color: var(--text-secondary);
     font-size: 1.5rem;
@@ -824,14 +1034,22 @@ body.light .stat-card {
 
 .prayer-selector-save-btn {
     width: 100%;
-    padding: 0.75rem;
+    padding: 1rem;
     background: var(--accent-primary);
     border: none;
-    color: white;
-    border-radius: 8px;
+    color: #000;
+    border-radius: var(--radius-sm);
     font-weight: 600;
+    font-size: 1rem;
     cursor: pointer;
     transition: all 0.2s ease;
+    box-shadow: var(--elevation-1);
+}
+
+.prayer-selector-save-btn:hover {
+    box-shadow: var(--elevation-2);
+    transform: translateY(-2px);
+    opacity: 0.9;
 }
 
 .prayer-selector-save-btn:hover {

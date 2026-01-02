@@ -137,20 +137,17 @@
             </div>
         </div>
 
+        <h3 class="section-title">Weekly Progress</h3>
         <div class="chart-section">
-            <h3>Weekly Progress</h3>
             <div class="bar-chart" id="weekly-chart"></div>
         </div>
 
-        <div class="history-grid-section">
-            <h3>Last 28 Days</h3>
-            <div class="history-grid" id="history-grid"></div>
-        </div>
-
-        <div class="edit-history-section">
-            <h3>📅 Prayer Selector</h3>
-            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;">Select a day to mark which prayers you completed</p>
-            <button id="toggle-calendar" class="edit-history-btn">📆 Pick a Day</button>
+        <div class="calendar-section">
+            <div class="calendar-header-main">
+                <h3>📅 Quick Edit</h3>
+                <p style="font-size: 0.85rem; color: var(--text-secondary);">Select a day to log prayers</p>
+            </div>
+            <button id="toggle-calendar" class="toggle-calendar-btn">Show Calendar</button>
             <div id="calendar-panel" class="calendar-panel hidden">
                 <div class="calendar-header">
                     <button id="prev-month" class="month-nav">◀</button>
@@ -158,38 +155,43 @@
                     <button id="next-month" class="month-nav">▶</button>
                 </div>
                 <div id="calendar-grid" class="calendar-grid"></div>
-            </div>
 
-            <!-- Prayer Selector for Selected Day -->
-            <div id="prayer-selector-panel" class="prayer-selector-panel hidden">
-                <div class="prayer-selector-header">
-                    <h3 id="selected-day-title">Select Prayers</h3>
-                    <button id="close-prayer-selector" class="close-selector-btn">✕</button>
+                <!-- Prayer Selector for Selected Day -->
+                <div id="prayer-selector-panel" class="prayer-selector-panel hidden">
+                    <div class="prayer-selector-header">
+                        <h3 id="selected-day-title">Select Prayers</h3>
+                        <button id="close-prayer-selector" class="close-selector-btn">✕</button>
+                    </div>
+                    <div class="prayer-selector-list">
+                        <label class="prayer-checkbox">
+                            <input type="checkbox" class="prayer-select" data-prayer="Fajr">
+                            <span>🌅 Fajr</span>
+                        </label>
+                        <label class="prayer-checkbox">
+                            <input type="checkbox" class="prayer-select" data-prayer="Dhuhr">
+                            <span>☀️ Dhuhr</span>
+                        </label>
+                        <label class="prayer-checkbox">
+                            <input type="checkbox" class="prayer-select" data-prayer="Asr">
+                            <span>⛅ Asr</span>
+                        </label>
+                        <label class="prayer-checkbox">
+                            <input type="checkbox" class="prayer-select" data-prayer="Maghrib">
+                            <span>🌅 Maghrib</span>
+                        </label>
+                        <label class="prayer-checkbox">
+                            <input type="checkbox" class="prayer-select" data-prayer="Isha">
+                            <span>🌙 Isha</span>
+                        </label>
+                    </div>
+                    <button id="save-prayer-selector" class="prayer-selector-save-btn">Save Prayers</button>
                 </div>
-                <div class="prayer-selector-list">
-                    <label class="prayer-checkbox">
-                        <input type="checkbox" class="prayer-select" data-prayer="Fajr">
-                        <span>🌅 Fajr</span>
-                    </label>
-                    <label class="prayer-checkbox">
-                        <input type="checkbox" class="prayer-select" data-prayer="Dhuhr">
-                        <span>☀️ Dhuhr</span>
-                    </label>
-                    <label class="prayer-checkbox">
-                        <input type="checkbox" class="prayer-select" data-prayer="Asr">
-                        <span>⛅ Asr</span>
-                    </label>
-                    <label class="prayer-checkbox">
-                        <input type="checkbox" class="prayer-select" data-prayer="Maghrib">
-                        <span>🌅 Maghrib</span>
-                    </label>
-                    <label class="prayer-checkbox">
-                        <input type="checkbox" class="prayer-select" data-prayer="Isha">
-                        <span>🌙 Isha</span>
-                    </label>
-                </div>
-                <button id="save-prayer-selector" class="prayer-selector-save-btn">Save Prayers</button>
             </div>
+        </div>
+
+        <h3 class="section-title">Last 28 Days</h3>
+        <div class="history-grid-section">
+            <div class="history-grid" id="history-grid"></div>
         </div>
     </main>
 
