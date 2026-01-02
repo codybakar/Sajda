@@ -135,18 +135,44 @@ function checkDailyReset() {
 
 // --- Logic: Data Fetching ---
 
+const refreshBtn = document.getElementById('refresh-location');
+if (refreshBtn) {
+    refreshBtn.addEventListener('click', () => {
+        statusEl.textContent = "Retrying GPS...";
+        
+        // Spin animation class
+        refreshBtn.style.transform = "rotate(360deg)";
+        setTimeout(() => { refreshBtn.style.transform = "none"; }, 1000);
+
+        // Force reload even if cache exists? Maybe just try GPS again.
+        getUserLocation();
+    });
+}
+
 function getUserLocation() {
-    if (navigator.geolocation) {
-        statusEl.textContent = "Locating via GPS...";
-        const options = {
-            enableHighAccuracy: true,
-            timeout: 5000, 
-            maximumAge: 0
-        };
-        navigator.geolocation.getCurrentPosition(onLocationSuccess, handleError, options);
-    } else {
+    if (!navigator.geolocation) {
         handleError({ message: "Not Supported" });
+        return;
     }
+
+    statusEl.textContent = "Locating (GPS)...";
+    
+    // Attempt 1: High Accuracy
+    navigator.geolocation.getCurrentPosition(
+        onLocationSuccess,
+        (err) => {
+            console.warn("High Acc failed, trying Low Acc...", err);
+            statusEl.textContent = "Trying Network Loc...";
+            
+            // Attempt 2: Low Accuracy (Fallback)
+            navigator.geolocation.getCurrentPosition(
+                onLocationSuccess,
+                handleError, // Final Error Handler
+                { enableHighAccuracy: false, timeout: 10000, maximumAge: 0 }
+            );
+        },
+        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+    );
 }
 
 function onLocationSuccess(position) {
@@ -167,9 +193,14 @@ function getCityName(lat, lng) {
     fetch(url)
         .then(res => res.json())
         .then(data => {
-            const city = data.city || data.locality || data.principalSubdivision || "Unknown";
+            const city = data.city || data.locality || data.principalSubdivision || "Unknown Location";
             statusEl.textContent = city;
             localStorage.setItem('cachedLocationName', city);
+            
+            // Revert Button Icon
+            if(refreshBtn) {
+                refreshBtn.style.transform = "none";
+            }
         })
         .catch(err => {
             console.log("Geo Error:", err);
@@ -178,10 +209,16 @@ function getCityName(lat, lng) {
 }
 
 function handleError(error) {
-    console.warn("GPS Error:", error.message);
-    statusEl.textContent = "GPS Failed";
-    clearTimeout(loadingTimeout); // Cancel safety, we are handling it
+    console.warn("GPS Final Error:", error.message);
+    statusEl.textContent = "Use Settings to Set Loc"; // Hint to user
+    clearTimeout(loadingTimeout);
+    
+    // Still load defaults so app is usable
     restoreDefaultTimes();
+    
+    if(refreshBtn) {
+        refreshBtn.style.transform = "none";
+    }
 }
 
 function fetchPrayerTimes(lat, lng) {
@@ -255,22 +292,59 @@ function setupDate() {
 
 function setupCards() {
     cards.forEach((card, index) => {
-        const btn = card.querySelector('.check-btn');
-        
         // Restore state
         if (prayerStatus[index]) {
             card.classList.add('completed');
         }
 
-        // Click Handler
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation(); // Prevent bubbling if card has click
-            togglePrayer(index);
-        });
-        
-        // Also allow clicking the whole card for better UX
+        // --- INTERACTION: Click (Squish) ---
         card.addEventListener('click', () => {
+             // Add a tiny vibration
+             if (navigator.vibrate) navigator.vibrate(10); 
              togglePrayer(index);
+        });
+
+        // --- INTERACTION: Swipe to Complete (Touch) ---
+        let startX = 0;
+        let currentX = 0;
+        let isSwiping = false;
+
+        card.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+            isSwiping = true;
+            card.style.transition = 'none'; // Instant movement
+        }, { passive: true });
+
+        card.addEventListener('touchmove', (e) => {
+            if (!isSwiping) return;
+            currentX = e.touches[0].clientX;
+            const diff = currentX - startX;
+
+            // Only allow right swipe
+            if (diff > 0 && diff < 150) {
+                card.style.transform = `translateX(${diff}px) scale(0.98)`; // Move + slight shrink
+                card.style.opacity = `${1 - diff/300}`; // Fade slightly
+            }
+        }, { passive: true });
+
+        card.addEventListener('touchend', () => {
+            if (!isSwiping) return;
+            isSwiping = false;
+            card.style.transition = 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)'; // Restore bounce
+            card.style.opacity = '1';
+
+            const diff = currentX - startX;
+            if (diff > 100) { // Threshold met
+                // Success Swipe!
+                if (!prayerStatus[index]) { // Only if not already done
+                    togglePrayer(index);
+                    if (navigator.vibrate) navigator.vibrate([10, 30, 10]); 
+                }
+                card.style.transform = 'translateX(0)';
+            } else {
+                // Reset (Rubber band back)
+                card.style.transform = 'translateX(0)';
+            }
         });
     });
 }
@@ -598,12 +672,17 @@ function updateProgress() {
     const completed = prayerStatus.filter(Boolean).length;
     const total = PRAYERS.length;
     
-    completedCountEl.textContent = completed;
+    // completedCountEl.textContent = completed; 
     
-    const radius = 52;
-    const circumference = 2 * Math.PI * radius;
+    const radius = 82;
+    const circumference = 2 * Math.PI * radius; // ~515.22
+    
+    // Offset logic:
+    // If 0 done: offset = circumference (Hidden / Empty)
+    // If 5 done: offset = 0 (Full)
     const offset = circumference - (completed / total) * circumference;
     
+    progressCircle.style.strokeDasharray = `${circumference} ${circumference}`;
     progressCircle.style.strokeDashoffset = offset;
 }
 

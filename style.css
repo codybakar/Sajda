@@ -286,68 +286,135 @@ body.light .glass-container {
     border-radius: 15px;
     padding: 1.2rem;
     display: flex;
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(12px); /* Heavier blur for depth */
+    border-radius: 25px; /* Pill shape */
+    padding: 1.2rem 1.8rem;
+    display: flex;
     justify-content: space-between;
     align-items: center;
-    transition: all 0.2s ease;
+    border: 1px solid rgba(255, 255, 255, 0.08); /* More subtle border */
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncy transition */
     cursor: pointer;
-    border-radius: var(--radius-sm);
-    background: var(--surface-variant);
-    border: none;
-    box-shadow: var(--elevation-1);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); /* Soft ambient shadow */
 }
 
-body.light .prayer-card {
-    background: var(--surface-variant);
-    box-shadow: var(--elevation-1);
-}
-
+/* Hover State: Levitate */
 .prayer-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--elevation-2);
+    transform: translateY(-5px) scale(1.02);
+    background: rgba(255, 255, 255, 0.07);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
-body.light .prayer-card:hover {
-    box-shadow: var(--elevation-2);
+/* Click State: Squish */
+.prayer-card:active {
+    transform: scale(0.95); /* Satisfying squish */
 }
 
-.prayer-card h2 {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: var(--accent-primary);
+/* Next Prayer: Alive */
+.prayer-card.next-active {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.15);
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(255, 255, 255, 0.02));
+    animation: float 3s ease-in-out infinite;
 }
 
-.prayer-card .time {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
 }
 
-.check-btn {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: none;
-    background: var(--accent-primary);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    opacity: 0.3;
-}
-
-.check-btn:hover {
-    opacity: 0.6;
-    transform: scale(1.1);
-}
-
-/* Hero Section */
-.hero-section {
+.prayer-info {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    background: var(--surface-variant);
-    padding: 2rem;
-    border-radius: var(--radius-sm);
-    margin-bottom: 2rem;
+    gap: 1rem;
+}
+
+/* Status Icon: The "Dot" */
+.status-icon {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transition: all 0.4s ease;
+    box-shadow: 0 0 0 0px rgba(255, 255, 255, 0);
+}
+
+.prayer-name {
+    font-size: 1.2rem;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.time {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 300;
+    color: var(--text-secondary);
+    font-size: 0.9rem; /* Subtle time */
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+}
+
+/* --- Completed State: The "Glow Up" --- */
+.prayer-card.completed {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(255, 255, 255, 0.05));
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+.prayer-card.completed .status-icon {
+    background: var(--accent-secondary);
+    box-shadow: 0 0 10px var(--accent-secondary);
+    transform: scale(1.2);
+}
+
+.prayer-card.completed .prayer-name {
+    color: var(--accent-secondary);
+    /* No strikethrough, just pure success color */
+}
+
+/* Hide the old check button, make the whole card the button */
+.check-btn {
+    display: none; /* Cleaner look */
+}
+
+.status-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.refresh-btn {
+    background: transparent;
     border: none;
-    box-shadow: var(--elevation-1);
+    color: var(--accent-primary);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    transition: transform 0.4s ease;
+    opacity: 0.7;
+}
+
+.refresh-btn:hover {
+    transform: rotate(180deg);
+    opacity: 1;
+}
+
+.refresh-btn:active {
+    transform: scale(0.9);
+}
+/* --- Hero Section: Breathing --- */
+.hero-section {
+    display: flex;
+    justify-content: center; /* Center everything */
+    align-items: center;
+    margin: 2rem 0 3rem 0;
+    position: relative;
+    padding: 2rem;
 }
 
 body.light .hero-section {
@@ -356,26 +423,33 @@ body.light .hero-section {
     box-shadow: 0 8px 20px rgba(91, 33, 182, 0.1);
 }
 
-.progress-ring-container {
+.progress-container {
     position: relative;
-    width: 120px;
-    height: 120px;
+    width: 180px;
+    height: 180px;
+}
+
+/* Progress Ring */
+.progress-ring {
+    overflow: visible; /* Prevents "squary" cut-off shadows */
 }
 
 .progress-ring__circle {
-    stroke-dasharray: 326.72; /* 2 * PI * r (52) */
-    stroke-dashoffset: 326.72;
-    transition: stroke-dashoffset 1s ease-in-out;
+    stroke-dasharray: 515; /* 2 * PI * 82 */
+    stroke-dashoffset: 515; /* Start empty */
+    transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     transform: rotate(-90deg);
     transform-origin: 50% 50%;
     stroke-linecap: round;
+    /* Soft Glow - Reduced spread to prevent artifacting */
+    filter: drop-shadow(0 0 6px var(--accent-primary));
 }
 
-.progress-ring__circle-bg {
-    stroke: rgba(255, 255, 255, 0.2);
+.progress-ring__bg {
+    stroke: rgba(255, 255, 255, 0.05);
 }
 
-body.light .progress-ring__circle-bg {
+body.light .progress-ring__bg {
     stroke: rgba(91, 33, 182, 0.15);
 }
 
@@ -383,18 +457,38 @@ body.light .progress-ring__circle {
     stroke: var(--accent-secondary);
 }
 
-.progress-text {
+/* Breathing Animation for the ring container */
+.progress-container::after {
+    content: '';
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--text-primary);
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    box-shadow: 0 0 30px var(--accent-primary);
+    opacity: 0.2;
+    z-index: -1;
+    animation: breathe 4s ease-in-out infinite;
+}
+
+@keyframes breathe {
+    0%, 100% { opacity: 0.1; transform: translate(-50%, -50%) scale(0.95); }
+    50% { opacity: 0.3; transform: translate(-50%, -50%) scale(1.05); }
 }
 
 .next-prayer-info {
-    text-align: right;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Perfect Center */
+    text-align: center;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .next-prayer-info p {
@@ -404,20 +498,20 @@ body.light .progress-ring__circle {
 }
 
 .next-prayer-info h2 {
-    font-size: 2rem;
-    font-weight: 700;
+    font-size: 1.5rem;
+    font-weight: 600;
     color: var(--accent-secondary);
-    margin-bottom: 0.5rem;
+    margin: 0 0 0.5rem 0; /* Add slight gap */
+    opacity: 0.9;
 }
 
-.countdown {
+#countdown {
     font-family: monospace;
-    font-size: 1.4rem;
-    background: rgba(0, 0, 0, 0.3);
-    padding: 0.4rem 0.8rem;
-    border-radius: 8px;
+    font-size: 1.6rem;
+    font-weight: 700;
     color: var(--accent-primary);
-    border: 1px solid rgba(139, 92, 246, 0.3);
+    font-feature-settings: "tnum";
+    line-height: 1; /* Tighten up */
 }
 
 /* Checked State for Cards */

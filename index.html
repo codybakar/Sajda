@@ -44,72 +44,78 @@
 
             <div class="header-info">
                 <span id="current-date" class="date-display">Getting date...</span>
-                <span id="status-display" class="status-display">Locating...</span>
+                <div class="status-wrapper">
+                    <span id="status-display" class="status-display">Locating...</span>
+                    <button id="refresh-location" class="refresh-btn" aria-label="Refresh Location">↻</button>
+                </div>
             </div>
         </header>
 
-        <!-- Hero Section -->
+        <!-- Hero Section: The Breathing Core -->
         <section class="hero-section">
-            <div class="progress-ring-container">
-                <svg class="progress-ring" width="120" height="120">
-                    <circle class="progress-ring__circle-bg" stroke="rgba(255,255,255,0.1)" stroke-width="8"
-                        fill="transparent" r="52" cx="60" cy="60" />
-                    <circle class="progress-ring__circle" stroke="var(--accent-secondary)" stroke-width="8"
-                        fill="transparent" r="52" cx="60" cy="60" />
+            <div class="progress-container">
+                <svg class="progress-ring" width="180" height="180">
+                    <circle class="progress-ring__bg" stroke="rgba(255,255,255,0.1)" stroke-width="8" fill="transparent"
+                        r="82" cx="90" cy="90" />
+                    <circle class="progress-ring__circle" stroke="var(--accent-primary)" stroke-width="8"
+                        fill="transparent" r="82" cx="90" cy="90" />
                 </svg>
-                <div class="progress-text">
-                    <span id="completed-count">0</span>/5
+                <div class="next-prayer-info">
+                    <h2 id="next-prayer-name">Fajr</h2>
+                    <p id="countdown" class="countdown">00:00:00</p>
                 </div>
             </div>
-
-            <div class="next-prayer-info">
-                <p>Next Prayer</p>
-                <h2 id="next-prayer-name">Fajr</h2>
-                <div class="countdown" id="countdown">00:00:00</div>
-            </div>
+            <!-- Hidden Completed Count for Logic -->
+            <span id="completed-count" style="display:none;">0</span>
         </section>
 
-        <section class="dashboard">
-            <div class="prayer-card active-card">
-                <div class="card-info">
-                    <h2>Fajr</h2>
-                    <div class="time">05:30 AM</div>
+        <!-- Prayer "Pills" -->
+        <div class="cards-list">
+            <!-- Card 1: Fajr -->
+            <div class="prayer-card" data-prayer="fajr">
+                <div class="prayer-info">
+                    <div class="status-icon"></div> <!-- The Dot -->
+                    <span class="prayer-name">Fajr</span>
                 </div>
-                <button class="check-btn" aria-label="Mark Fajr as done"></button>
+                <span class="time">05:30 AM</span>
             </div>
 
-            <div class="prayer-card">
-                <div class="card-info">
-                    <h2>Dhuhr</h2>
-                    <div class="time">01:15 PM</div>
+            <!-- Card 2: Dhuhr -->
+            <div class="prayer-card" data-prayer="dhuhr">
+                <div class="prayer-info">
+                    <div class="status-icon"></div>
+                    <span class="prayer-name">Dhuhr</span>
                 </div>
-                <button class="check-btn" aria-label="Mark Dhuhr as done"></button>
+                <span class="time">01:15 PM</span>
             </div>
 
-            <div class="prayer-card">
-                <div class="card-info">
-                    <h2>Asr</h2>
-                    <div class="time">04:45 PM</div>
+            <!-- Card 3: Asr -->
+            <div class="prayer-card" data-prayer="asr">
+                <div class="prayer-info">
+                    <div class="status-icon"></div>
+                    <span class="prayer-name">Asr</span>
                 </div>
-                <button class="check-btn" aria-label="Mark Asr as done"></button>
+                <span class="time">04:45 PM</span>
             </div>
 
-            <div class="prayer-card">
-                <div class="card-info">
-                    <h2>Maghrib</h2>
-                    <div class="time">06:50 PM</div>
+            <!-- Card 4: Maghrib -->
+            <div class="prayer-card" data-prayer="maghrib">
+                <div class="prayer-info">
+                    <div class="status-icon"></div>
+                    <span class="prayer-name">Maghrib</span>
                 </div>
-                <button class="check-btn" aria-label="Mark Maghrib as done"></button>
+                <span class="time">06:50 PM</span>
             </div>
 
-            <div class="prayer-card">
-                <div class="card-info">
-                    <h2>Isha</h2>
-                    <div class="time">08:15 PM</div>
+            <!-- Card 5: Isha -->
+            <div class="prayer-card" data-prayer="isha">
+                <div class="prayer-info">
+                    <div class="status-icon"></div>
+                    <span class="prayer-name">Isha</span>
                 </div>
-                <button class="check-btn" aria-label="Mark Isha as done"></button>
+                <span class="time">08:15 PM</span>
             </div>
-        </section>
+        </div>
     </main>
 
     <!-- Stats Page -->
