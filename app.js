@@ -87,20 +87,33 @@ function setupTheme() {
     const savedTheme = localStorage.getItem('theme') || 'dark';
     document.body.classList.add(savedTheme);
     
-    if (themeBtn) {
-        themeBtn.addEventListener('click', () => {
-            const currentTheme = document.body.classList.contains('dark') ? 'dark' : 'light';
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            
-            document.body.classList.remove('dark', 'light');
-            document.body.classList.add(newTheme);
-            localStorage.setItem('theme', newTheme);
-            
-            themeBtn.textContent = newTheme === 'dark' ? '🌙' : '☀️';
+    const updateThemeButtons = () => {
+        const themeBtns = [document.getElementById('theme-toggle'), document.getElementById('theme-toggle-stats')];
+        const newText = document.body.classList.contains('dark') ? '🌙' : '☀️';
+        themeBtns.forEach(btn => {
+            if (btn) btn.textContent = newText;
         });
+    };
+    
+    const handleThemeToggle = () => {
+        const currentTheme = document.body.classList.contains('dark') ? 'dark' : 'light';
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
         
-        themeBtn.textContent = savedTheme === 'dark' ? '🌙' : '☀️';
-    }
+        document.body.classList.remove('dark', 'light');
+        document.body.classList.add(newTheme);
+        localStorage.setItem('theme', newTheme);
+        
+        updateThemeButtons();
+    };
+    
+    const themeBtns = [document.getElementById('theme-toggle'), document.getElementById('theme-toggle-stats')];
+    themeBtns.forEach(btn => {
+        if (btn) {
+            btn.addEventListener('click', handleThemeToggle);
+        }
+    });
+    
+    updateThemeButtons();
 }
 
 function checkDailyReset() {
@@ -260,9 +273,10 @@ function setupCards() {
 
 // --- Logic: History & Stats ---
 
-const statsBtn = document.getElementById('stats-btn');
-const closeStatsBtn = document.getElementById('close-stats');
-const statsModal = document.getElementById('stats-modal');
+const navHome = document.getElementById('nav-home');
+const navStats = document.getElementById('nav-stats');
+const homePage = document.getElementById('home-page');
+const statsPage = document.getElementById('stats-page');
 
 // Load History
 let prayerHistory = JSON.parse(localStorage.getItem('prayerHistory')) || {};
@@ -293,19 +307,25 @@ function togglePrayer(index) {
     }
 }
 
-// UI Logic for Modal
-statsBtn.addEventListener('click', () => {
-    renderStats();
-    statsModal.classList.add('active');
-});
+// Navigation Logic
+function navigateTo(page) {
+    homePage.classList.remove('active');
+    statsPage.classList.remove('active');
+    navHome.classList.remove('active');
+    navStats.classList.remove('active');
+    
+    if (page === 'home') {
+        homePage.classList.add('active');
+        navHome.classList.add('active');
+    } else if (page === 'stats') {
+        renderStats();
+        statsPage.classList.add('active');
+        navStats.classList.add('active');
+    }
+}
 
-closeStatsBtn.addEventListener('click', () => {
-    statsModal.classList.remove('active');
-});
-
-statsModal.addEventListener('click', (e) => {
-    if (e.target === statsModal) statsModal.classList.remove('active');
-});
+navHome.addEventListener('click', () => navigateTo('home'));
+navStats.addEventListener('click', () => navigateTo('stats'));
 
 function renderStats() {
     // 1. Calculate Streak

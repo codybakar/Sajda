@@ -29,7 +29,8 @@
         <div class="globe globe-2"></div>
     </div>
 
-    <main class="glass-container">
+    <!-- Home Page -->
+    <main id="home-page" class="page active glass-container">
         <header class="app-header">
             <div class="header-top">
                 <div class="logo">
@@ -37,7 +38,6 @@
                     <span class="subtitle">Daily Prayer Tracker</span>
                 </div>
                 <div class="header-actions">
-                    <button id="stats-btn" class="icon-btn" aria-label="Statistics">📊</button>
                     <button id="theme-toggle" class="theme-btn" aria-label="Toggle Theme">🌙</button>
                 </div>
             </div>
@@ -48,7 +48,7 @@
             </div>
         </header>
 
-        <!-- NEW: Hero Section -->
+        <!-- Hero Section -->
         <section class="hero-section">
             <div class="progress-ring-container">
                 <svg class="progress-ring" width="120" height="120">
@@ -111,6 +111,54 @@
             </div>
         </section>
     </main>
+
+    <!-- Stats Page -->
+    <main id="stats-page" class="page glass-container">
+        <header class="app-header">
+            <div class="header-top">
+                <div class="logo">
+                    <h1>Your Stats</h1>
+                    <span class="subtitle">Prayer Insights</span>
+                </div>
+                <div class="header-actions">
+                    <button id="theme-toggle-stats" class="theme-btn" aria-label="Toggle Theme">🌙</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="streak-container">
+            <div class="streak-card">
+                <h3 id="streak-count">0</h3>
+                <p>Day Streak 🔥</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="total-prayers">0</h3>
+                <p>Total Prayers</p>
+            </div>
+        </div>
+
+        <div class="chart-section">
+            <h3>Weekly Progress</h3>
+            <div class="bar-chart" id="weekly-chart"></div>
+        </div>
+
+        <div class="history-grid-section">
+            <h3>Last 28 Days</h3>
+            <div class="history-grid" id="history-grid"></div>
+        </div>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <button id="nav-home" class="nav-btn active" aria-label="Home">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-label">Home</span>
+        </button>
+        <button id="nav-stats" class="nav-btn" aria-label="Statistics">
+            <span class="nav-icon">📊</span>
+            <span class="nav-label">Stats</span>
+        </button>
+    </nav>
 
     <canvas id="confetti-canvas"></canvas>
     <script src="app.js"></script>
