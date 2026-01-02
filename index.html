@@ -148,10 +148,47 @@
         </div>
 
         <div class="edit-history-section">
-            <h3>Edit History</h3>
-            <button id="toggle-edit-history" class="edit-history-btn">✏️ Edit Old Days</button>
-            <div id="edit-history-panel" class="edit-history-panel hidden">
-                <div id="history-edit-list" class="history-edit-list"></div>
+            <h3>📅 Prayer Selector</h3>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1rem;">Select a day to mark which prayers you completed</p>
+            <button id="toggle-calendar" class="edit-history-btn">📆 Pick a Day</button>
+            <div id="calendar-panel" class="calendar-panel hidden">
+                <div class="calendar-header">
+                    <button id="prev-month" class="month-nav">◀</button>
+                    <span id="current-month">January 2026</span>
+                    <button id="next-month" class="month-nav">▶</button>
+                </div>
+                <div id="calendar-grid" class="calendar-grid"></div>
+            </div>
+
+            <!-- Prayer Selector for Selected Day -->
+            <div id="prayer-selector-panel" class="prayer-selector-panel hidden">
+                <div class="prayer-selector-header">
+                    <h3 id="selected-day-title">Select Prayers</h3>
+                    <button id="close-prayer-selector" class="close-selector-btn">✕</button>
+                </div>
+                <div class="prayer-selector-list">
+                    <label class="prayer-checkbox">
+                        <input type="checkbox" class="prayer-select" data-prayer="Fajr">
+                        <span>🌅 Fajr</span>
+                    </label>
+                    <label class="prayer-checkbox">
+                        <input type="checkbox" class="prayer-select" data-prayer="Dhuhr">
+                        <span>☀️ Dhuhr</span>
+                    </label>
+                    <label class="prayer-checkbox">
+                        <input type="checkbox" class="prayer-select" data-prayer="Asr">
+                        <span>⛅ Asr</span>
+                    </label>
+                    <label class="prayer-checkbox">
+                        <input type="checkbox" class="prayer-select" data-prayer="Maghrib">
+                        <span>🌅 Maghrib</span>
+                    </label>
+                    <label class="prayer-checkbox">
+                        <input type="checkbox" class="prayer-select" data-prayer="Isha">
+                        <span>🌙 Isha</span>
+                    </label>
+                </div>
+                <button id="save-prayer-selector" class="prayer-selector-save-btn">Save Prayers</button>
             </div>
         </div>
     </main>

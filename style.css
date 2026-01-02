@@ -15,15 +15,20 @@
     --font-main: 'Outfit', sans-serif;
 }
 
-[data-theme="light"] {
-    --bg-dark: #f0f9ff; /* Light Sky */
-    --accent-primary: #6366f1; /* Indigo */
-    --accent-secondary: #f59e0b; /* Amber */
-    --text-primary: #1e293b;
-    --text-secondary: #64748b;
+body.light {
+    --bg-dark: linear-gradient(135deg, #f0f9ff 0%, #e0f4ff 100%); /* Light gradient */
+    --accent-primary: #5b21b6; /* Deep purple */
+    --accent-secondary: #d97706; /* Deep amber */
+    --text-primary: #1e1b4b; /* Deep indigo */
+    --text-secondary: #6b7280; /* Better gray */
     
-    --glass-bg: rgba(255, 255, 255, 0.65); /* More opaque for light mode */
-    --glass-border: rgba(255, 255, 255, 0.4);
+    --glass-bg: rgba(255, 255, 255, 0.75); /* More opaque, crisp */
+    --glass-border: rgba(139, 69, 255, 0.25); /* Purple border for light mode */
+}
+
+body.light {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f4ff 100%);
+    background-attachment: fixed;
 }
 
 * {
@@ -125,6 +130,12 @@ main {
     box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
 }
 
+body.light .bottom-nav {
+    background: rgba(255, 255, 255, 0.85);
+    border-top: 2px solid rgba(139, 69, 255, 0.2);
+    box-shadow: 0 -4px 15px rgba(91, 33, 182, 0.1);
+}
+
 .nav-btn {
     display: flex;
     flex-direction: column;
@@ -169,10 +180,16 @@ main {
     padding: 2rem;
     width: 90%;
     max-width: 450px; 
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1); /* Softer shadow */
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08); /* Lighter shadow for light mode */
     min-height: 80vh;
     margin: 20px 0; /* Add margin for mobile scrolling */
     transition: background 0.3s ease, border 0.3s ease;
+}
+
+body.light .glass-container {
+    box-shadow: 0 8px 32px 0 rgba(91, 33, 182, 0.12);
+    border: 2px solid rgba(139, 69, 255, 0.2);
+    background: rgba(255, 255, 255, 0.8);
 }
 
 /* Header */
@@ -224,8 +241,17 @@ main {
 }
 
 .theme-btn:hover {
-    transform: rotate(30deg);
     background: rgba(255,255,255,0.1);
+}
+
+.theme-btn.clicked {
+    animation: spin 0.6s ease-in-out;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    50% { transform: rotate(180deg); }
+    100% { transform: rotate(360deg); }
 }
 
 /* Prayer Cards */
@@ -260,10 +286,22 @@ main {
     transform-style: preserve-3d;
 }
 
+body.light .prayer-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.6), rgba(139, 69, 255, 0.05));
+    border: 1.5px solid rgba(139, 69, 255, 0.2);
+    box-shadow: 0 4px 15px rgba(91, 33, 182, 0.08);
+}
+
 .prayer-card:hover {
     background: rgba(255, 255, 255, 0.08);
     transform: translateY(-2px);
     border-color: rgba(255, 255, 255, 0.2);
+}
+
+body.light .prayer-card:hover {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(139, 69, 255, 0.1));
+    border-color: rgba(139, 69, 255, 0.4);
+    box-shadow: 0 8px 20px rgba(91, 33, 182, 0.15);
 }
 
 .prayer-card h2 {
@@ -302,6 +340,12 @@ main {
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+body.light .hero-section {
+    background: linear-gradient(135deg, rgba(139, 69, 255, 0.08), rgba(217, 119, 6, 0.05));
+    border: 2px solid rgba(139, 69, 255, 0.2);
+    box-shadow: 0 8px 20px rgba(91, 33, 182, 0.1);
+}
+
 .progress-ring-container {
     position: relative;
     width: 120px;
@@ -315,6 +359,18 @@ main {
     transform: rotate(-90deg);
     transform-origin: 50% 50%;
     stroke-linecap: round;
+}
+
+.progress-ring__circle-bg {
+    stroke: rgba(255, 255, 255, 0.2);
+}
+
+body.light .progress-ring__circle-bg {
+    stroke: rgba(91, 33, 182, 0.15);
+}
+
+body.light .progress-ring__circle {
+    stroke: var(--accent-secondary);
 }
 
 .progress-text {
@@ -360,10 +416,20 @@ main {
     border-color: var(--accent-primary);
 }
 
+body.light .prayer-card.completed {
+    background: linear-gradient(135deg, rgba(91, 33, 182, 0.15), rgba(91, 33, 182, 0.08));
+    border-color: var(--accent-primary);
+    box-shadow: 0 4px 15px rgba(91, 33, 182, 0.2);
+}
+
 .prayer-card.completed .check-btn {
     background: var(--accent-primary);
     border-color: var(--accent-primary);
     box-shadow: 0 0 15px var(--accent-primary);
+}
+
+body.light .prayer-card.completed .check-btn {
+    box-shadow: 0 0 15px rgba(91, 33, 182, 0.4);
 }
 
 .prayer-card.completed h2 {
@@ -477,6 +543,13 @@ main {
     border: 1px solid var(--glass-border);
 }
 
+body.light .streak-card, 
+body.light .stat-card {
+    background: linear-gradient(135deg, rgba(139, 69, 255, 0.1), rgba(217, 119, 6, 0.08));
+    border: 1.5px solid rgba(139, 69, 255, 0.25);
+    box-shadow: 0 4px 12px rgba(91, 33, 182, 0.1);
+}
+
 .streak-card h3, .stat-card h3 {
     font-size: 2rem;
     margin: 5px 0;
@@ -582,94 +655,188 @@ main {
     box-shadow: 0 0 10px rgba(139, 92, 246, 0.2);
 }
 
-.edit-history-panel {
+/* Calendar Picker */
+.calendar-panel {
     margin-top: 1rem;
-    max-height: 300px;
-    overflow-y: auto;
     border: 1px solid var(--glass-border);
     border-radius: 12px;
     padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
 }
 
-.edit-history-panel.hidden {
+.calendar-panel.hidden {
     display: none;
 }
 
-.history-edit-list {
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.month-nav {
+    background: transparent;
+    border: none;
+    color: var(--accent-primary);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.month-nav:hover {
+    background: rgba(139, 92, 246, 0.2);
+}
+
+#current-month {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    margin-bottom: 1rem;
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--text-secondary);
+}
+
+.calendar-day:hover {
+    background: rgba(139, 92, 246, 0.2);
+    border-color: var(--accent-primary);
+}
+
+.calendar-day.other-month {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.calendar-day.today {
+    background: rgba(139, 92, 246, 0.3);
+    color: var(--text-primary);
+    font-weight: 600;
+    border-color: var(--accent-primary);
+}
+
+.calendar-day.selected {
+    background: var(--accent-primary);
+    color: white;
+    border-color: var(--accent-primary);
+}
+
+/* Prayer Selector */
+.prayer-selector-panel {
+    margin-top: 1rem;
+    border: 2px solid var(--accent-primary);
+    border-radius: 12px;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(139, 92, 246, 0.05));
+}
+
+.prayer-selector-panel.hidden {
+    display: none;
+}
+
+.prayer-selector-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.prayer-selector-header h3 {
+    color: var(--accent-primary);
+    margin: 0;
+}
+
+.close-selector-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.close-selector-btn:hover {
+    color: var(--text-primary);
+}
+
+.prayer-selector-list {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
 }
 
-.history-edit-item {
+.prayer-checkbox {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: 0.75rem;
     padding: 0.75rem;
     background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
     border-radius: 8px;
-    border: 1px solid var(--glass-border);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
 }
 
-.history-edit-item-date {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    flex: 1;
-}
-
-.history-edit-item-controls {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.edit-count-input {
-    width: 50px;
-    padding: 0.4rem;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid var(--glass-border);
-    color: var(--text-primary);
-    border-radius: 6px;
-    text-align: center;
-    font-weight: 600;
-}
-
-.edit-count-input:focus {
-    outline: none;
+.prayer-checkbox:hover {
+    background: rgba(139, 92, 246, 0.15);
     border-color: var(--accent-primary);
-    box-shadow: 0 0 8px rgba(139, 92, 246, 0.2);
 }
 
-.edit-save-btn {
-    padding: 0.4rem 0.8rem;
+.prayer-checkbox input {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: var(--accent-primary);
+}
+
+.prayer-checkbox span {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.prayer-checkbox input:checked + span {
+    color: var(--accent-primary);
+}
+
+.prayer-selector-save-btn {
+    width: 100%;
+    padding: 0.75rem;
     background: var(--accent-primary);
     border: none;
     color: white;
-    border-radius: 6px;
-    cursor: pointer;
+    border-radius: 8px;
     font-weight: 600;
+    cursor: pointer;
     transition: all 0.2s ease;
 }
 
-.edit-save-btn:hover {
+.prayer-selector-save-btn:hover {
     background: rgba(139, 92, 246, 0.8);
-    box-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
-}
-
-.edit-delete-btn {
-    padding: 0.4rem 0.6rem;
-    background: rgba(255, 59, 48, 0.2);
-    border: 1px solid rgba(255, 59, 48, 0.5);
-    color: #ff3b30;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.2s ease;
-}
-
-.edit-delete-btn:hover {
-    background: rgba(255, 59, 48, 0.3);
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
 }
 
 /* Mobile Responsiveness */

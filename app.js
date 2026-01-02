@@ -95,7 +95,7 @@ function setupTheme() {
         });
     };
     
-    const handleThemeToggle = () => {
+    const handleThemeToggle = (btn) => {
         const currentTheme = document.body.classList.contains('dark') ? 'dark' : 'light';
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
         
@@ -103,13 +103,17 @@ function setupTheme() {
         document.body.classList.add(newTheme);
         localStorage.setItem('theme', newTheme);
         
+        // Add click animation
+        btn.classList.add('clicked');
+        setTimeout(() => btn.classList.remove('clicked'), 600);
+        
         updateThemeButtons();
     };
     
     const themeBtns = [document.getElementById('theme-toggle'), document.getElementById('theme-toggle-stats')];
     themeBtns.forEach(btn => {
         if (btn) {
-            btn.addEventListener('click', handleThemeToggle);
+            btn.addEventListener('click', () => handleThemeToggle(btn));
         }
     });
     
@@ -280,6 +284,7 @@ const statsPage = document.getElementById('stats-page');
 
 // Load History
 let prayerHistory = JSON.parse(localStorage.getItem('prayerHistory')) || {};
+let prayerDetails = JSON.parse(localStorage.getItem('prayerDetails')) || {};
 
 function updateHistory() {
     const todayStr = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
@@ -415,68 +420,132 @@ function renderHistoryGrid() {
     }
 }
 
-// Edit History Functions
-function renderEditHistory() {
-    const editList = document.getElementById('history-edit-list');
-    editList.innerHTML = '';
+// Calendar Picker Functions
+const calendarToggleBtn = document.getElementById('toggle-calendar');
+const calendarPanel = document.getElementById('calendar-panel');
+const prayerSelectorPanel = document.getElementById('prayer-selector-panel');
+const prevMonthBtn = document.getElementById('prev-month');
+const nextMonthBtn = document.getElementById('next-month');
+const currentMonthSpan = document.getElementById('current-month');
+const calendarGridEl = document.getElementById('calendar-grid');
+const closeSelBtn = document.getElementById('close-prayer-selector');
+const savePrayersBtn = document.getElementById('save-prayer-selector');
+
+let currentCalendarDate = new Date();
+let selectedDateForPrayers = null;
+
+function renderCalendar() {
+    const year = currentCalendarDate.getFullYear();
+    const month = currentCalendarDate.getMonth();
     
-    // Get last 30 days, sorted by date (newest first)
-    const sortedDates = Object.keys(prayerHistory).sort().reverse().slice(0, 30);
+    currentMonthSpan.textContent = new Date(year, month).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
     
-    sortedDates.forEach(dateStr => {
-        const count = prayerHistory[dateStr];
-        const date = new Date(dateStr);
-        const dayName = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const prevLastDay = new Date(year, month, 0);
+    
+    const firstDayOfWeek = firstDay.getDay();
+    const lastDateOfMonth = lastDay.getDate();
+    const prevLastDate = prevLastDay.getDate();
+    
+    let html = '';
+    
+    // Previous month's days
+    for (let i = firstDayOfWeek - 1; i >= 0; i--) {
+        html += `<div class="calendar-day other-month">${prevLastDate - i}</div>`;
+    }
+    
+    // Current month's days
+    const today = new Date();
+    for (let date = 1; date <= lastDateOfMonth; date++) {
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
+        const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === date;
+        const isSelected = selectedDateForPrayers && selectedDateForPrayers === dateStr;
         
-        const item = document.createElement('div');
-        item.className = 'history-edit-item';
+        let className = 'calendar-day';
+        if (isToday) className += ' today';
+        if (isSelected) className += ' selected';
         
-        item.innerHTML = `
-            <span class="history-edit-item-date">${dayName}</span>
-            <div class="history-edit-item-controls">
-                <input type="number" class="edit-count-input" data-date="${dateStr}" value="${count}" min="0" max="5">
-                <button class="edit-save-btn" onclick="saveHistoryEdit('${dateStr}')">✓</button>
-                <button class="edit-delete-btn" onclick="deleteHistoryEntry('${dateStr}')">🗑️</button>
-            </div>
-        `;
-        
-        editList.appendChild(item);
+        html += `<div class="calendar-day ${className}" onclick="selectDateForPrayers('${dateStr}')">${date}</div>`;
+    }
+    
+    // Next month's days
+    const totalCells = firstDayOfWeek + lastDateOfMonth;
+    const remainingCells = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+    for (let date = 1; date <= remainingCells; date++) {
+        html += `<div class="calendar-day other-month">${date}</div>`;
+    }
+    
+    calendarGridEl.innerHTML = html;
+}
+
+function selectDateForPrayers(dateStr) {
+    selectedDateForPrayers = dateStr;
+    renderCalendar();
+    
+    // Load saved prayers for this date
+    const date = new Date(dateStr);
+    const dayName = date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+    document.getElementById('selected-day-title').textContent = `${dayName} - Select Prayers`;
+    
+    // Uncheck all first
+    document.querySelectorAll('.prayer-select').forEach(input => input.checked = false);
+    
+    // Check saved prayers
+    if (prayerDetails[dateStr]) {
+        prayerDetails[dateStr].forEach(prayer => {
+            const checkbox = document.querySelector(`input[data-prayer="${prayer}"]`);
+            if (checkbox) checkbox.checked = true;
+        });
+    }
+    
+    prayerSelectorPanel.classList.remove('hidden');
+}
+
+function savePrayersForDay() {
+    if (!selectedDateForPrayers) return;
+    
+    const selectedPrayers = [];
+    document.querySelectorAll('.prayer-select:checked').forEach(input => {
+        selectedPrayers.push(input.getAttribute('data-prayer'));
     });
-}
-
-function saveHistoryEdit(dateStr) {
-    const input = document.querySelector(`input[data-date="${dateStr}"]`);
-    const newValue = parseInt(input.value);
     
-    if (newValue >= 0 && newValue <= 5) {
-        prayerHistory[dateStr] = newValue;
-        localStorage.setItem('prayerHistory', JSON.stringify(prayerHistory));
-        renderStats();
-        renderEditHistory();
-    } else {
-        alert('Please enter a number between 0 and 5');
-    }
+    prayerDetails[selectedDateForPrayers] = selectedPrayers;
+    prayerHistory[selectedDateForPrayers] = selectedPrayers.length;
+    
+    localStorage.setItem('prayerDetails', JSON.stringify(prayerDetails));
+    localStorage.setItem('prayerHistory', JSON.stringify(prayerHistory));
+    
+    prayerSelectorPanel.classList.add('hidden');
+    selectedDateForPrayers = null;
+    renderCalendar();
+    renderStats();
 }
 
-function deleteHistoryEntry(dateStr) {
-    if (confirm('Delete history for this day?')) {
-        delete prayerHistory[dateStr];
-        localStorage.setItem('prayerHistory', JSON.stringify(prayerHistory));
-        renderStats();
-        renderEditHistory();
-    }
-}
-
-// Toggle Edit History Panel
-const toggleEditBtn = document.getElementById('toggle-edit-history');
-const editPanel = document.getElementById('edit-history-panel');
-
-toggleEditBtn.addEventListener('click', () => {
-    editPanel.classList.toggle('hidden');
-    if (!editPanel.classList.contains('hidden')) {
-        renderEditHistory();
+calendarToggleBtn.addEventListener('click', () => {
+    calendarPanel.classList.toggle('hidden');
+    if (!calendarPanel.classList.contains('hidden')) {
+        renderCalendar();
     }
 });
+
+prevMonthBtn.addEventListener('click', () => {
+    currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+    renderCalendar();
+});
+
+nextMonthBtn.addEventListener('click', () => {
+    currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+    renderCalendar();
+});
+
+closeSelBtn.addEventListener('click', () => {
+    prayerSelectorPanel.classList.add('hidden');
+    selectedDateForPrayers = null;
+    renderCalendar();
+});
+
+savePrayersBtn.addEventListener('click', savePrayersForDay);
 
 // Start
 // --- Logic: Progress ---
